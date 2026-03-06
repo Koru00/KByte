@@ -4,6 +4,7 @@
 #include <cstring>
 #include <stdexcept>
 #include <cstddef>
+#include <vector>
 
 #define EX_MAKE(cat, code)   (((uint32_t)(cat) << 24) | ((code) & 0xFFFFFF))
 #define EX_CATEGORY(x)       ((uint8_t)((x) >> 24))

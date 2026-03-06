@@ -16,6 +16,12 @@
 #include "runtime.h"
 #include "system_call.h"
 
+#ifdef _MSC_VER
+#define FORCE_INLINE __forceinline
+#else
+#define FORCE_INLINE inline __attribute__((always_inline))
+#endif
+
 /**
  * @brief Enumeration of all VM bytecode instructions.
  */
@@ -117,22 +123,22 @@ inline std::optional<Bytecode> bytecodeFromString(std::string_view str)
 }
 
 // MOV instruction: dst = R[b]
-__forceinline void MOV(VM& vm, uint8_t a, uint8_t b, uint8_t c = 0)
+FORCE_INLINE  void MOV(VM& vm, uint8_t a, uint8_t b, uint8_t c = 0)
 {
     vm.registers[a] = vm.registers[b];
 }
 
-__forceinline void LDI(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
+FORCE_INLINE  void LDI(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
 {
     vm.registers[dst] = static_cast<uint32_t>(pack_u8(b, c));
 }
 
-__forceinline void LDI32(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
+FORCE_INLINE  void LDI32(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
 {
     vm.registers[dst] = vm.code[++vm.ip];
 }
 
-__forceinline void LOD(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
+FORCE_INLINE  void LOD(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
 {
     const uint32_t addr = static_cast<uint32_t>(pack_u8(b, c));
     if (addr >= vm.memorySize)
@@ -143,7 +149,7 @@ __forceinline void LOD(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
     vm.registers[dst] = static_cast<uint32_t>(vm.memory[addr]);
 }
 
-__forceinline void STO(VM& vm, uint8_t src, uint8_t b, uint8_t c)
+FORCE_INLINE  void STO(VM& vm, uint8_t src, uint8_t b, uint8_t c)
 {
     const uint32_t addr = static_cast<uint32_t>(pack_u8(b, c));
     if (addr >= vm.memorySize)
@@ -154,7 +160,7 @@ __forceinline void STO(VM& vm, uint8_t src, uint8_t b, uint8_t c)
     vm.memory[addr] = static_cast<int32_t>(vm.registers[src]);
 }
 
-__forceinline void LODR(VM& vm, uint8_t dst, uint8_t addrReg)
+FORCE_INLINE  void LODR(VM& vm, uint8_t dst, uint8_t addrReg)
 {
     const uint32_t addr = vm.registers[addrReg];
     if (addr >= vm.memorySize)
@@ -165,7 +171,7 @@ __forceinline void LODR(VM& vm, uint8_t dst, uint8_t addrReg)
     vm.registers[dst] = static_cast<uint32_t>(vm.memory[addr]);
 }
 
-__forceinline void STOR(VM& vm, uint8_t src, uint8_t addrReg)
+FORCE_INLINE  void STOR(VM& vm, uint8_t src, uint8_t addrReg)
 {
     const uint32_t addr = vm.registers[addrReg];
     if (addr >= vm.memorySize)
@@ -176,7 +182,7 @@ __forceinline void STOR(VM& vm, uint8_t src, uint8_t addrReg)
     vm.memory[addr] = static_cast<int32_t>(vm.registers[src]);
 }
 
-__forceinline void PUSH(VM& vm, uint8_t a, uint8_t b = 0, uint8_t c = 0)
+FORCE_INLINE  void PUSH(VM& vm, uint8_t a, uint8_t b = 0, uint8_t c = 0)
 {
     if (vm.sp >= vm.stackSize)
     {
@@ -186,7 +192,7 @@ __forceinline void PUSH(VM& vm, uint8_t a, uint8_t b = 0, uint8_t c = 0)
     vm.stack[vm.sp++] = static_cast<int32_t>(vm.registers[a]);
 }
 
-__forceinline void POP(VM& vm, uint8_t a, uint8_t b = 0, uint8_t c = 0)
+FORCE_INLINE  void POP(VM& vm, uint8_t a, uint8_t b = 0, uint8_t c = 0)
 {
     if (vm.sp == 0)
     {
@@ -196,49 +202,49 @@ __forceinline void POP(VM& vm, uint8_t a, uint8_t b = 0, uint8_t c = 0)
     vm.registers[a] = static_cast<uint32_t>(vm.stack[--vm.sp]);
 }
 
-__forceinline void ADD(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
+FORCE_INLINE  void ADD(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
 {
     vm.registers[dst] = aluAdd(vm, vm.registers[b], vm.registers[c]);
 }
 
-__forceinline void SUB(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
+FORCE_INLINE  void SUB(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
 {
     vm.registers[dst] = aluSub(vm, vm.registers[b], vm.registers[c]);
 }
 
-__forceinline void MUL(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
+FORCE_INLINE  void MUL(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
 {
     vm.registers[dst] = aluMul(vm, vm.registers[b], vm.registers[c]);
 }
 
-__forceinline void DIV(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
+FORCE_INLINE  void DIV(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
 {
     vm.registers[dst] = aluDiv(vm, vm.registers[b], vm.registers[c]);
 }
 
-__forceinline void MOD(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
+FORCE_INLINE  void MOD(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
 {
     vm.registers[dst] = aluMod(vm, vm.registers[b], vm.registers[c]);
 }
 
-__forceinline void NEG(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
+FORCE_INLINE  void NEG(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
 {
     vm.registers[dst] = aluSub(vm, 0u, vm.registers[b]);
 }
 
 // R[a] = b^c (immediate exponent)
-__forceinline void POW(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
+FORCE_INLINE  void POW(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
 {
     vm.registers[dst] = aluPow(vm, b, c);
 }
 
 // R[a] = R[b]^R[c]
-__forceinline void POWR(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
+FORCE_INLINE  void POWR(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
 {
     vm.registers[dst] = aluPow(vm, vm.registers[b], vm.registers[c]);
 }
 
-__forceinline void ABS(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
+FORCE_INLINE  void ABS(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
 {
     const uint32_t val = vm.registers[b];
 
@@ -262,27 +268,27 @@ __forceinline void ABS(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
     }
 }
 
-__forceinline void AND(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
+FORCE_INLINE  void AND(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
 {
     vm.registers[dst] = aluAnd(vm, vm.registers[b], vm.registers[c]);
 }
 
-__forceinline void OR(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
+FORCE_INLINE  void OR(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
 {
     vm.registers[dst] = aluOr(vm, vm.registers[b], vm.registers[c]);
 }
 
-__forceinline void XOR(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
+FORCE_INLINE  void XOR(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
 {
     vm.registers[dst] = aluXor(vm, vm.registers[b], vm.registers[c]);
 }
 
-__forceinline void NOT(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
+FORCE_INLINE  void NOT(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
 {
     vm.registers[dst] = ~vm.registers[b];
 }
 
-__forceinline void SHL(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
+FORCE_INLINE  void SHL(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
 {
     const uint32_t value = vm.registers[b];
     const uint32_t shift = vm.registers[c] & 0x1Fu; // 0..31
@@ -302,7 +308,7 @@ __forceinline void SHL(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
     vm.registers[dst] = result;
 }
 
-__forceinline void SHR(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
+FORCE_INLINE  void SHR(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
 {
     const uint32_t value = vm.registers[b];
     const uint32_t shift = vm.registers[c] & 0x1Fu; // 0..31
@@ -323,30 +329,30 @@ __forceinline void SHR(VM& vm, uint8_t dst, uint8_t b, uint8_t c)
     vm.registers[dst] = result;
 }
 
-__forceinline void CMP(VM& vm, uint8_t a, uint8_t b, uint8_t c)
+FORCE_INLINE  void CMP(VM& vm, uint8_t a, uint8_t b, uint8_t c)
 {
     // Keep comparisons consistent with ALU compare (unsigned registers)
     aluCmp(vm, vm.registers[a], vm.registers[b]);
 }
 
-__forceinline void JMP(VM& vm, uint8_t a, uint8_t b, uint8_t c)
+FORCE_INLINE  void JMP(VM& vm, uint8_t a, uint8_t b, uint8_t c)
 {
     vm.ip = pack_u8(b, a)-1;
 }
 
-__forceinline void JE(VM& vm, uint8_t a, uint8_t b, uint8_t c)
+FORCE_INLINE  void JE(VM& vm, uint8_t a, uint8_t b, uint8_t c)
 {
     if (getFlag(vm, FLAG_EQUAL))
         vm.ip = pack_u8(b, a)-1;
 }
 
-__forceinline void JNE(VM& vm, uint8_t a, uint8_t b, uint8_t c)
+FORCE_INLINE  void JNE(VM& vm, uint8_t a, uint8_t b, uint8_t c)
 {
     if (!getFlag(vm, FLAG_EQUAL))
         vm.ip = pack_u8(b, a)-1;
 }
 
-__forceinline void SYC(VM& vm, uint8_t a, uint8_t b, uint8_t c)
+FORCE_INLINE  void SYC(VM& vm, uint8_t a, uint8_t b, uint8_t c)
 {
     const uint32_t callIndex = vm.registers[R7];
     const uint32_t arg = vm.registers[R0];
@@ -362,7 +368,7 @@ __forceinline void SYC(VM& vm, uint8_t a, uint8_t b, uint8_t c)
     }
 }
 
-__forceinline void CALL(VM& vm, uint8_t a, uint8_t b, uint8_t c)
+FORCE_INLINE  void CALL(VM& vm, uint8_t a, uint8_t b, uint8_t c)
 {
     if (vm.sp >= vm.stackSize) {
         vm.ex = EX_MAKE(ExceptionCategory::EX_VM, EX_VM_STACK_OVERFLOW);
@@ -376,7 +382,7 @@ __forceinline void CALL(VM& vm, uint8_t a, uint8_t b, uint8_t c)
     vm.ip = pack_u8(b, a) - 1;
 }
 
-__forceinline void RET(VM& vm, uint8_t a, uint8_t b, uint8_t c)
+FORCE_INLINE  void RET(VM& vm, uint8_t a, uint8_t b, uint8_t c)
 {
     if (vm.sp == 0) {
         vm.ex = EX_MAKE(ExceptionCategory::EX_VM, EX_VM_STACK_UNDERFLOW);
@@ -388,7 +394,7 @@ __forceinline void RET(VM& vm, uint8_t a, uint8_t b, uint8_t c)
     vm.ip = static_cast<uint32_t>(vm.stack[--vm.sp]) - 1;
 }
 
-__forceinline void HALT(VM& vm, uint8_t a, uint8_t b, uint8_t c)
+FORCE_INLINE  void HALT(VM& vm, uint8_t a, uint8_t b, uint8_t c)
 {
     vm.state = VMState::Halted;
 }
