@@ -1,5 +1,0 @@
-C:/Projects/xenit/RomBuilder/build/windows-debug/CMakeFiles/edit_cache.dir
-C:/Projects/xenit/RomBuilder/build/windows-debug/CMakeFiles/rebuild_cache.dir
-C:/Projects/xenit/RomBuilder/build/windows-debug/RomBuilder/CMakeFiles/RomBuilder.dir
-C:/Projects/xenit/RomBuilder/build/windows-debug/RomBuilder/CMakeFiles/edit_cache.dir
-C:/Projects/xenit/RomBuilder/build/windows-debug/RomBuilder/CMakeFiles/rebuild_cache.dir

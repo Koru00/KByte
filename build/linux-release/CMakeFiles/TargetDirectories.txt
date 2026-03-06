@@ -1,5 +1,0 @@
-/mnt/c/Projects/xenit/RomBuilder/build/linux-release/CMakeFiles/edit_cache.dir
-/mnt/c/Projects/xenit/RomBuilder/build/linux-release/CMakeFiles/rebuild_cache.dir
-/mnt/c/Projects/xenit/RomBuilder/build/linux-release/RomBuilder/CMakeFiles/RomBuilder.dir
-/mnt/c/Projects/xenit/RomBuilder/build/linux-release/RomBuilder/CMakeFiles/edit_cache.dir
-/mnt/c/Projects/xenit/RomBuilder/build/linux-release/RomBuilder/CMakeFiles/rebuild_cache.dir

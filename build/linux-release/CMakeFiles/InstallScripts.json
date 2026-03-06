@@ -1,0 +1,8 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/koru/projects/KByte/build/linux-release/cmake_install.cmake",
+		"/home/koru/projects/KByte/build/linux-release/RomBuilder/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

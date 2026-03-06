@@ -1,7 +1,0 @@
-# ninja log v6
-12	63	7945208709721512	RomBuilder/CMakeFiles/RomBuilder.dir/runtime.cpp.obj	bf829bda02823f8a
-8	628	7945208709681469	RomBuilder/CMakeFiles/RomBuilder.dir/bytecode.cpp.obj	bd3251f4e21335da
-15	814	7945208709756588	RomBuilder/CMakeFiles/RomBuilder.dir/assembler.cpp.obj	eeed795a3840050e
-3	883	7945208709636319	RomBuilder/CMakeFiles/RomBuilder.dir/RomBuilder.cpp.obj	c25aa77c8c950535
-19	982	7945208709791663	RomBuilder/CMakeFiles/RomBuilder.dir/interpreter.cpp.obj	1ceb8c02a6cc452a
-982	1272	7945208719422646	RomBuilder/RomBuilder.exe	e552742486fc60a3

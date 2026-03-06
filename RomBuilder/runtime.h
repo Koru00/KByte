@@ -45,7 +45,7 @@ inline uint32_t aluDiv(VM& vm, uint32_t a, uint32_t b)
     if (b == 0)
     {
         vm.ex = EX_MAKE(ExceptionCategory::EX_VM, EX_VM_DIV_ZERO);
-        return NULL;
+        return 0;
     }
 
     uint32_t result = a / b;
@@ -63,7 +63,7 @@ inline uint32_t aluMod(VM& vm, uint32_t a, uint32_t b)
     if (b == 0)
     {
         vm.ex = EX_MAKE(ExceptionCategory::EX_VM, EX_VM_DIV_ZERO);
-        return NULL;
+        return 0;
     }
 
     uint32_t result = a % b;
