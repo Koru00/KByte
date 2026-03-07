@@ -105,7 +105,7 @@ int Interpreter(const char* filepath)
         std::chrono::steady_clock::now() - start
     ).count();
 
-    std::cout << "\n\nTook " << ns / 1000000 << "ms for " << time_int << " instruction" << "\n";
+std::cout << "Executed " << time_int << (time_int == 1 ? " instruction" : " instructions") << " in " << ns << " ns\n";
 
     return 0;
 }

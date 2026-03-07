@@ -1,0 +1,487 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c654380..d8df7ed 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -2,42 +2,71 @@
+ 
+ project(RomBuilder LANGUAGES C CXX)
+ 
+-# ---------------------------
+-# Compiler specific settings
+-# ---------------------------
++# --------------------------------
++# Global compiler settings
++# --------------------------------
++
++set(CMAKE_C_STANDARD 17)
++set(CMAKE_C_STANDARD_REQUIRED ON)
++
++set(CMAKE_CXX_STANDARD 20)
++set(CMAKE_CXX_STANDARD_REQUIRED ON)
++
++# --------------------------------
++# Warnings (very important)
++# --------------------------------
+ 
+ if (MSVC)
+ 
+-    # MSVC Debug flags
+     add_compile_options(
+-        $<$<CONFIG:Debug>:/Od>     # Disable optimizations
+-        $<$<CONFIG:Debug>:/Zi>     # Debug symbols
++        /W4
++        /permissive-
+     )
+ 
+-    # MSVC Release flags
++else()
++
+     add_compile_options(
+-        $<$<CONFIG:Release>:/Ox>   # Full optimization
+-        $<$<CONFIG:Release>:/Ob3>  # Aggressive inlining
+-        $<$<CONFIG:Release>:/GL>   # Link time optimization
+-        $<$<CONFIG:Release>:/DNDEBUG>
++        -Wpedantic
++        -fdiagnostics-show-line-numbers
++        -fdiagnostics-show-option
+     )
+ 
++endif()
++
++# --------------------------------
++# Optimization / Debug flags
++# --------------------------------
++
++if (MSVC)
++
++    set(CMAKE_C_FLAGS_DEBUG "/Od /Zi")
++    set(CMAKE_CXX_FLAGS_DEBUG "/Od /Zi")
++
++    set(CMAKE_C_FLAGS_RELEASE "/O2 /DNDEBUG")
++    set(CMAKE_CXX_FLAGS_RELEASE "/O2 /DNDEBUG")
++
++    set(CMAKE_C_FLAGS_RELWITHDEBINFO "/O2 /Zi")
++    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/O2 /Zi")
++
+ else()
+ 
+-    # GCC / Clang flags (Linux, MacOS, etc)
++    set(CMAKE_C_FLAGS_DEBUG "-O0 -g3")
++    set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -fsanitize=address,undefined")
+ 
+-    add_compile_options(
+-        $<$<CONFIG:Debug>:-O0>
+-        $<$<CONFIG:Debug>:-g>
++    set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
++    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+ 
+-        $<$<CONFIG:Release>:-O3>
+-        $<$<CONFIG:Release>:-DNDEBUG>
+-    )
++    set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g")
++    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
++
++endif()
+ 
++if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
++    add_compile_options(-fdiagnostics-color=always)
+ endif()
+ 
+-# ---------------------------
++# --------------------------------
+ # Subprojects
+-# ---------------------------
++# --------------------------------
+ 
+-add_subdirectory(RomBuilder)
+\ No newline at end of file
++add_subdirectory(RomBuilder)
+diff --git a/CMakePresets.json b/CMakePresets.json
+index 0181a1a..899f9ce 100644
+--- a/CMakePresets.json
++++ b/CMakePresets.json
+@@ -1,7 +1,7 @@
+ ﻿{
+   "version": 3,
+-  "configurePresets": [
+ 
++  "configurePresets": [
+     {
+       "name": "base",
+       "hidden": true,
+@@ -28,13 +28,32 @@
+ 
+     {
+       "name": "linux-release",
+-      "inherits": "linux-debug",
++      "inherits": "base",
+       "displayName": "Linux Release",
++      "condition": {
++        "type": "equals",
++        "lhs": "${hostSystemName}",
++        "rhs": "Linux"
++      },
+       "cacheVariables": {
+         "CMAKE_BUILD_TYPE": "Release"
+       }
+     },
+ 
++    {
++      "name": "linux-relwithdebinfo",
++      "inherits": "base",
++      "displayName": "Linux RelWithDebInfo",
++      "condition": {
++        "type": "equals",
++        "lhs": "${hostSystemName}",
++        "rhs": "Linux"
++      },
++      "cacheVariables": {
++        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
++      }
++    },
++
+     {
+       "name": "windows-debug",
+       "inherits": "base",
+@@ -51,12 +70,23 @@
+ 
+     {
+       "name": "windows-release",
+-      "inherits": "windows-debug",
++      "inherits": "base",
+       "displayName": "Windows Release",
++      "condition": {
++        "type": "equals",
++        "lhs": "${hostSystemName}",
++        "rhs": "Windows"
++      },
+       "cacheVariables": {
+         "CMAKE_BUILD_TYPE": "Release"
+       }
+     }
++  ],
+ 
++  "buildPresets": [
++    {
++      "name": "build",
++      "configurePreset": "linux-debug"
++    }
+   ]
+-}
+\ No newline at end of file
++}
+diff --git a/RomBuilder/RomBuilder.cpp b/RomBuilder/RomBuilder.cpp
+index 2cd12af..a378c33 100644
+--- a/RomBuilder/RomBuilder.cpp
++++ b/RomBuilder/RomBuilder.cpp
+@@ -1,50 +1,92 @@
+ ﻿#include "RomBuilder.h"
++
+ #ifdef _WIN32
+ #include <windows.h>
+ #endif
+ 
++#include <iostream>
++#include <vector>
++#include <string>
++#include <string_view>
++
++// 1. Group state into a struct for deterministic behavior
++struct Config
++{
++    std::string output = "a.xbc";
++    std::string run_file = "";
++    std::vector<std::string> inputs;
++    bool run = false;
++};
++
++void print_help(std::string_view program_name) 
++{
++    std::cout << "Usage: " << program_name << " [options] <input_files...>\n"
++              << "Options:\n"
++              << "  -o, --output <file>    Specify output executable name (default: a.xbc)\n"
++              << "  -r, --run <file>       Specify a file to run immediately\n"
++              << "  -h, --help             Display this help message\n";
++}
++
+ int main(int argc, char* argv[])
+ {
+-    std::string output = "a.out";
+-    std::string input;
++    Config config;
++    std::string_view program_name = argv[0];
+ 
+-    for (int i = 1; i < argc; i++)
+-    {
+-        std::string arg = argv[i];
++    // 2. Parse arguments
++    for (int i = 1; i < argc; ++i) {
++        std::string_view arg = argv[i];
+ 
+-        if (arg == "-o")
+-        {
+-            if (i + 1 >= argc)
+-            {
+-                std::cerr << "-o requires argument\n";
++        if (arg == "-o" || arg == "--output") {
++            if (++i >= argc) {
++                std::cerr << "Error: '" << arg << "' requires a filename argument.\n";
+                 return 1;
+             }
+-
+-            output = argv[++i]; // consume next argument
+-        }
+-        else if (arg[0] == '-')
+-        {
+-            std::cerr << "Unknown flag: " << arg << "\n";
++            config.output = argv[i];
++        } 
++        else if (arg == "-r" || arg == "--run") {
++            if (++i >= argc) {
++                std::cerr << "Error: '" << arg << "' requires a filename argument.\n";
++                return 1;
++            }
++            config.run = true;
++            config.run_file = argv[i];
++        } 
++        else if (arg == "-h" || arg == "--help") {
++            print_help(program_name);
++            return 0;
++        } 
++        // 3. Catch misspelled or unknown flags
++        else if (!arg.empty() && arg[0] == '-') {
++            std::cerr << "Error: Unknown flag '" << arg << "'.\n"
++                      << "Run '" << program_name << " --help' for usage.\n";
+             return 1;
+-        }
+-        else
+-        {
+-            input = arg;
++        } 
++        // 4. GCC-style positional inputs (anything not starting with '-')
++        else {
++            config.inputs.emplace_back(arg);
+         }
+     }
+ 
+-    std::cout << "Input: " << input << "\n";
+-    std::cout << "Output: " << output << "\n";
++    // 5. Deterministic validation (e.g., GCC fails if no inputs are provided)
++    if (config.inputs.empty() && !config.run) {
++        std::cerr << "Error: No input files provided.\n";
++        return 1;
++    }
+ 
+-    if (assembler("..\\..\\..\\..\\examples\\test-asm.xba", "..\\..\\..\\..\\examples\\test-asm.xbc"))
++    if (!config.run)
++    {
++    if (assembler(config.inputs[0].c_str(), config.output.c_str()))
+     {
+         return 1;
+     }
+-
+-    if (Interpreter("..\\..\\..\\..\\examples\\test-asm.xbc"))
++    }
++    else
++    {
++    if (Interpreter(config.run_file.c_str()))
+     {
+         return 1;
+     }
++    }
+ 
+     return 0;
+ }
+diff --git a/RomBuilder/assembler.cpp b/RomBuilder/assembler.cpp
+index 51c85d3..b26462f 100644
+--- a/RomBuilder/assembler.cpp
++++ b/RomBuilder/assembler.cpp
+@@ -5,6 +5,7 @@
+ #include <vector>
+ #include <unordered_set>
+ #include <limits>
++#include <chrono>
+ 
+ static int createBin(const char* name, const Header& header, const std::vector<uint32_t>& code);
+ static int cleanFile(std::ifstream& file, std::vector<std::string>& fileCleaned, std::unordered_map<std::string, uint32_t>& callMap, size_t& index);
+@@ -17,25 +18,28 @@ std::vector<std::string_view> split_ws(std::string_view s);
+ 
+ int assembler(const char* filepath, const char* outName)
+ {
++    int state = 0;
++
++    auto start = std::chrono::steady_clock::now();
+     std::ifstream file(filepath);
+     if (!file.is_open()) {
+         std::cerr << "File " << filepath << " not found." << std::endl;
+-        return 1;
++        state = 1;
+     }
+ 
+     std::vector<std::string> fileCleaned;
+     std::unordered_map<std::string, uint32_t> callMap;
+     size_t size = 0;
+ 
+-    if (cleanFile(file, fileCleaned, callMap, size))
++    if (!state && cleanFile(file, fileCleaned, callMap, size))
+     {
+-        return 1;
++        state = 1;
+     }
+     
+     std::vector<uint32_t> code;
+-    if (produceCode(fileCleaned, callMap, code, size))
++    if (!state && produceCode(fileCleaned, callMap, code, size))
+     {
+-        return 1;
++        state = 1;
+     }
+     file.close();
+ 
+@@ -56,12 +60,19 @@ int assembler(const char* filepath, const char* outName)
+         header.entry_point = 0;
+     }
+     
+-    if (createBin(outName, header, code))
++    if (!state && createBin(outName, header, code))
+     {
+-        return 1;
++        state = 1;
+     }
+ 
+-    return 0;
++    // 6. Calculate execution time cleanly
++    auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
++        std::chrono::steady_clock::now() - start
++    ).count();
++
++    std::cout << "Assembly completed in " << ns / 1000000 << " ms (Exit Code: " << state << ")\n";
++
++    return state;
+ }
+ 
+ static std::string trim(const std::string& s) {
+diff --git a/RomBuilder/interpreter.cpp b/RomBuilder/interpreter.cpp
+index 8d1541a..c3ab1aa 100644
+--- a/RomBuilder/interpreter.cpp
++++ b/RomBuilder/interpreter.cpp
+@@ -105,7 +105,7 @@ int Interpreter(const char* filepath)
+         std::chrono::steady_clock::now() - start
+     ).count();
+ 
+-    std::cout << "\n\nTook " << ns / 1000000 << "ms for " << time_int << " instruction" << "\n";
++std::cout << "Executed " << time_int << (time_int == 1 ? " instruction" : " instructions") << " in " << ns << " ns\n";
+ 
+     return 0;
+-}
+\ No newline at end of file
++}
+diff --git a/RomBuilder/system_call.h b/RomBuilder/system_call.h
+index 4a31d1b..b1d1b34 100644
+--- a/RomBuilder/system_call.h
++++ b/RomBuilder/system_call.h
+@@ -4,6 +4,8 @@
+ #include <charconv>
+ #include <cstdio>
+ #include <cstdlib>
++#include <iostream>
++#include <limits>
+ 
+ #include "vm.h"
+ 
+@@ -36,6 +38,50 @@ enum class SystemCall : uint8_t {
+     ENV, LOG, DBG, HST
+ };
+ 
++// Reads a signed 32-bit integer from an input stream.
++// Returns true if parsing succeeded, false if invalid input was provided.
++static inline bool read_int32(std::istream& in, int32_t& out) noexcept
++{
++    int c = in.get();
++
++    // Skip leading whitespace
++    while (c == ' ' || c == '\t' || c == '\n' || c == '\r')
++        c = in.get();
++
++    if (c == EOF)
++        return false;
++
++    bool negative = false;
++
++    // Handle sign
++    if (c == '-' || c == '+')
++    {
++        negative = (c == '-');
++        c = in.get();
++    }
++
++    if (c < '0' || c > '9')
++        return false;
++
++    int32_t value = 0;
++
++    while (c >= '0' && c <= '9')
++    {
++        int digit = c - '0';
++
++        // Overflow check
++        if (value > (std::numeric_limits<int32_t>::max() - digit) / 10)
++            return false;
++
++        value = value * 10 + digit;
++
++        c = in.get();
++    }
++
++    out = negative ? -value : value;
++    return true;
++}
++
+ // ----- fast syscall handlers (file scope, no nested functions) -----
+ using SysHandler = void(*)(VM&, uint32_t) noexcept;
+ 
+@@ -59,8 +105,8 @@ static inline void sys_err_handler(VM& vm, uint32_t v) noexcept
+ 
+ }
+ 
+-// Print string
+-static inline void sys_prt_handler(VM& /*vm*/, uint32_t v) noexcept
++// Print string from memory
++static inline void sys_prt_handler(VM& vm, uint32_t v) noexcept
+ {
+     
+ }
+@@ -79,16 +125,24 @@ static inline void sys_prn_handler(VM& vm, uint32_t v) noexcept
+     }
+ }
+ 
+-// Read line / string
++// Input string
+ static inline void sys_ipt_handler(VM& vm, uint32_t v) noexcept
+ {
+ 
+ }
+ 
+-// Input number
+ static inline void sys_ipn_handler(VM& vm, uint32_t v) noexcept
+ {
++    int32_t value;
+ 
++    if (!read_int32(std::cin, value))
++    {
++        // Handle invalid input
++        // TODO set vm excetion to EX_TYPE_MISMATCH
++        return;
++    }
++
++    vm.registers[R0] = static_cast<uint32_t>(value);
+ }
+ 
+ // Clear screen
+@@ -113,4 +167,4 @@ static inline SysHandler sys_handlers[] = {
+     sys_ipn_handler,
+     sys_clr_handler,
+     sys_cch_handler
+-};
+\ No newline at end of file
++};

@@ -5,6 +5,7 @@
 #include <vector>
 #include <unordered_set>
 #include <limits>
+#include <chrono>
 
 static int createBin(const char* name, const Header& header, const std::vector<uint32_t>& code);
 static int cleanFile(std::ifstream& file, std::vector<std::string>& fileCleaned, std::unordered_map<std::string, uint32_t>& callMap, size_t& index);
@@ -17,25 +18,28 @@ std::vector<std::string_view> split_ws(std::string_view s);
 
 int assembler(const char* filepath, const char* outName)
 {
+    int state = 0;
+
+    auto start = std::chrono::steady_clock::now();
     std::ifstream file(filepath);
     if (!file.is_open()) {
         std::cerr << "File " << filepath << " not found." << std::endl;
-        return 1;
+        state = 1;
     }
 
     std::vector<std::string> fileCleaned;
     std::unordered_map<std::string, uint32_t> callMap;
     size_t size = 0;
 
-    if (cleanFile(file, fileCleaned, callMap, size))
+    if (!state && cleanFile(file, fileCleaned, callMap, size))
     {
-        return 1;
+        state = 1;
     }
     
     std::vector<uint32_t> code;
-    if (produceCode(fileCleaned, callMap, code, size))
+    if (!state && produceCode(fileCleaned, callMap, code, size))
     {
-        return 1;
+        state = 1;
     }
     file.close();
 
@@ -56,12 +60,19 @@ int assembler(const char* filepath, const char* outName)
         header.entry_point = 0;
     }
     
-    if (createBin(outName, header, code))
+    if (!state && createBin(outName, header, code))
     {
-        return 1;
+        state = 1;
     }
 
-    return 0;
+    // 6. Calculate execution time cleanly
+    auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+        std::chrono::steady_clock::now() - start
+    ).count();
+
+    std::cout << "Assembly completed in " << ns / 1000000 << " ms (Exit Code: " << state << ")\n";
+
+    return state;
 }
 
 static std::string trim(const std::string& s) {

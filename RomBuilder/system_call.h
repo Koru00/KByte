@@ -4,6 +4,8 @@
 #include <charconv>
 #include <cstdio>
 #include <cstdlib>
+#include <iostream>
+#include <limits>
 
 #include "vm.h"
 
@@ -36,6 +38,50 @@ enum class SystemCall : uint8_t {
     ENV, LOG, DBG, HST
 };
 
+// Reads a signed 32-bit integer from an input stream.
+// Returns true if parsing succeeded, false if invalid input was provided.
+static inline bool read_int32(std::istream& in, int32_t& out) noexcept
+{
+    int c = in.get();
+
+    // Skip leading whitespace
+    while (c == ' ' || c == '\t' || c == '\n' || c == '\r')
+        c = in.get();
+
+    if (c == EOF)
+        return false;
+
+    bool negative = false;
+
+    // Handle sign
+    if (c == '-' || c == '+')
+    {
+        negative = (c == '-');
+        c = in.get();
+    }
+
+    if (c < '0' || c > '9')
+        return false;
+
+    int32_t value = 0;
+
+    while (c >= '0' && c <= '9')
+    {
+        int digit = c - '0';
+
+        // Overflow check
+        if (value > (std::numeric_limits<int32_t>::max() - digit) / 10)
+            return false;
+
+        value = value * 10 + digit;
+
+        c = in.get();
+    }
+
+    out = negative ? -value : value;
+    return true;
+}
+
 // ----- fast syscall handlers (file scope, no nested functions) -----
 using SysHandler = void(*)(VM&, uint32_t) noexcept;
 
@@ -59,8 +105,8 @@ static inline void sys_err_handler(VM& vm, uint32_t v) noexcept
 
 }
 
-// Print string
-static inline void sys_prt_handler(VM& /*vm*/, uint32_t v) noexcept
+// Print string from memory
+static inline void sys_prt_handler(VM& vm, uint32_t v) noexcept
 {
     
 }
@@ -79,16 +125,24 @@ static inline void sys_prn_handler(VM& vm, uint32_t v) noexcept
     }
 }
 
-// Read line / string
+// Input string
 static inline void sys_ipt_handler(VM& vm, uint32_t v) noexcept
 {
 
 }
 
-// Input number
 static inline void sys_ipn_handler(VM& vm, uint32_t v) noexcept
 {
+    int32_t value;
 
+    if (!read_int32(std::cin, value))
+    {
+        // Handle invalid input
+        // TODO set vm excetion to EX_TYPE_MISMATCH
+        return;
+    }
+
+    vm.registers[R0] = static_cast<uint32_t>(value);
 }
 
 // Clear screen

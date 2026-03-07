@@ -1,7 +1,7 @@
 ﻿{
   "version": 3,
-  "configurePresets": [
 
+  "configurePresets": [
     {
       "name": "base",
       "hidden": true,
@@ -28,10 +28,29 @@
 
     {
       "name": "linux-release",
-      "inherits": "linux-debug",
+      "inherits": "base",
       "displayName": "Linux Release",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+
+    {
+      "name": "linux-relwithdebinfo",
+      "inherits": "base",
+      "displayName": "Linux RelWithDebInfo",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
       }
     },
 
@@ -51,12 +70,23 @@
 
     {
       "name": "windows-release",
-      "inherits": "windows-debug",
+      "inherits": "base",
       "displayName": "Windows Release",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
     }
+  ],
 
+  "buildPresets": [
+    {
+      "name": "build",
+      "configurePreset": "linux-debug"
+    }
   ]
 }

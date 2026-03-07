@@ -1,0 +1,5 @@
+/home/koru/projects/KByte/build/linux-debug/CMakeFiles/edit_cache.dir
+/home/koru/projects/KByte/build/linux-debug/CMakeFiles/rebuild_cache.dir
+/home/koru/projects/KByte/build/linux-debug/RomBuilder/CMakeFiles/RomBuilder.dir
+/home/koru/projects/KByte/build/linux-debug/RomBuilder/CMakeFiles/edit_cache.dir
+/home/koru/projects/KByte/build/linux-debug/RomBuilder/CMakeFiles/rebuild_cache.dir

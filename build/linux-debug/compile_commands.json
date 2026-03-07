@@ -1,0 +1,32 @@
+[
+{
+  "directory": "/home/koru/projects/KByte/build/linux-debug",
+  "command": "/usr/bin/c++ -O0 -g3 -fsanitize=address,undefined -std=gnu++20 -Wpedantic -fdiagnostics-show-line-numbers -fdiagnostics-show-option -fdiagnostics-color=always -o RomBuilder/CMakeFiles/RomBuilder.dir/RomBuilder.cpp.o -c /home/koru/projects/KByte/RomBuilder/RomBuilder.cpp",
+  "file": "/home/koru/projects/KByte/RomBuilder/RomBuilder.cpp",
+  "output": "RomBuilder/CMakeFiles/RomBuilder.dir/RomBuilder.cpp.o"
+},
+{
+  "directory": "/home/koru/projects/KByte/build/linux-debug",
+  "command": "/usr/bin/c++ -O0 -g3 -fsanitize=address,undefined -std=gnu++20 -Wpedantic -fdiagnostics-show-line-numbers -fdiagnostics-show-option -fdiagnostics-color=always -o RomBuilder/CMakeFiles/RomBuilder.dir/bytecode.cpp.o -c /home/koru/projects/KByte/RomBuilder/bytecode.cpp",
+  "file": "/home/koru/projects/KByte/RomBuilder/bytecode.cpp",
+  "output": "RomBuilder/CMakeFiles/RomBuilder.dir/bytecode.cpp.o"
+},
+{
+  "directory": "/home/koru/projects/KByte/build/linux-debug",
+  "command": "/usr/bin/c++ -O0 -g3 -fsanitize=address,undefined -std=gnu++20 -Wpedantic -fdiagnostics-show-line-numbers -fdiagnostics-show-option -fdiagnostics-color=always -o RomBuilder/CMakeFiles/RomBuilder.dir/runtime.cpp.o -c /home/koru/projects/KByte/RomBuilder/runtime.cpp",
+  "file": "/home/koru/projects/KByte/RomBuilder/runtime.cpp",
+  "output": "RomBuilder/CMakeFiles/RomBuilder.dir/runtime.cpp.o"
+},
+{
+  "directory": "/home/koru/projects/KByte/build/linux-debug",
+  "command": "/usr/bin/c++ -O0 -g3 -fsanitize=address,undefined -std=gnu++20 -Wpedantic -fdiagnostics-show-line-numbers -fdiagnostics-show-option -fdiagnostics-color=always -o RomBuilder/CMakeFiles/RomBuilder.dir/assembler.cpp.o -c /home/koru/projects/KByte/RomBuilder/assembler.cpp",
+  "file": "/home/koru/projects/KByte/RomBuilder/assembler.cpp",
+  "output": "RomBuilder/CMakeFiles/RomBuilder.dir/assembler.cpp.o"
+},
+{
+  "directory": "/home/koru/projects/KByte/build/linux-debug",
+  "command": "/usr/bin/c++ -O0 -g3 -fsanitize=address,undefined -std=gnu++20 -Wpedantic -fdiagnostics-show-line-numbers -fdiagnostics-show-option -fdiagnostics-color=always -o RomBuilder/CMakeFiles/RomBuilder.dir/interpreter.cpp.o -c /home/koru/projects/KByte/RomBuilder/interpreter.cpp",
+  "file": "/home/koru/projects/KByte/RomBuilder/interpreter.cpp",
+  "output": "RomBuilder/CMakeFiles/RomBuilder.dir/interpreter.cpp.o"
+}
+]

@@ -1,0 +1,27 @@
+# Get A and B
+LDI R7 06
+SYC
+PUSH R0
+SYC
+MOV R1 R0
+POP R0
+# Set R2 to 0 for CMP
+LDI R2 00
+
+.LOOP
+    CMP R1 R2
+    JE END  # if zero jump to end
+    PUSH R1
+    MOD R0 R0 R1
+    MOV R1 R0
+    POP R0
+    JMP LOOP
+
+.END
+    # Print the result R0
+    LDI R7 04
+    SYC
+    # End program with exit code 0
+    XOR R0 R0
+    LDI R7 00
+    SYC

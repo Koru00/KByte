@@ -1,0 +1,20 @@
+# ninja log v6
+3	89	1772922434253277155	RomBuilder/CMakeFiles/RomBuilder.dir/runtime.cpp.o	3236d7c840b0ebcb
+3	3664	1772922434253101337	RomBuilder/CMakeFiles/RomBuilder.dir/bytecode.cpp.o	d2acc34db15667b2
+3	241	1772925739220690910	/home/koru/projects/KByte/build/linux-debug/RomBuilder/cmake_install.cmake	353699ba9c34450a
+2	4279	1772922434252277152	RomBuilder/CMakeFiles/RomBuilder.dir/RomBuilder.cpp.o	71cca33bb52293ee
+3	241	1772925739217690904	/home/koru/projects/KByte/build/linux-debug/cmake_install.cmake	353699ba9c34450a
+4	5731	1772922434253953149	RomBuilder/CMakeFiles/RomBuilder.dir/interpreter.cpp.o	24449ed10a8ac9b6
+4	8983	1772922434253647944	RomBuilder/CMakeFiles/RomBuilder.dir/assembler.cpp.o	5bca4786448daf25
+8983	9232	1772922443232310039	RomBuilder/RomBuilder	66099e6f8971268e
+3	241	1772925739224690918	build.ninja	353699ba9c34450a
+4	4038	1772925901546104408	RomBuilder/CMakeFiles/RomBuilder.dir/bytecode.cpp.o	d2acc34db15667b2
+3	4712	1772925901545104405	RomBuilder/CMakeFiles/RomBuilder.dir/RomBuilder.cpp.o	71cca33bb52293ee
+5	5834	1772925901547614436	RomBuilder/CMakeFiles/RomBuilder.dir/interpreter.cpp.o	24449ed10a8ac9b6
+4	9068	1772925901547265133	RomBuilder/CMakeFiles/RomBuilder.dir/assembler.cpp.o	5bca4786448daf25
+9068	9492	1772925910610132060	RomBuilder/RomBuilder	66099e6f8971268e
+4	3959	1772927474678613318	RomBuilder/CMakeFiles/RomBuilder.dir/bytecode.cpp.o	d2acc34db15667b2
+3	4740	1772927474677613319	RomBuilder/CMakeFiles/RomBuilder.dir/RomBuilder.cpp.o	71cca33bb52293ee
+5	5769	1772927474680756976	RomBuilder/CMakeFiles/RomBuilder.dir/interpreter.cpp.o	24449ed10a8ac9b6
+5	9054	1772927474679613317	RomBuilder/CMakeFiles/RomBuilder.dir/assembler.cpp.o	5bca4786448daf25
+9055	9305	1772927483729604506	RomBuilder/RomBuilder	66099e6f8971268e
