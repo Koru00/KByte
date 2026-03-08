@@ -128,7 +128,6 @@ public:
         stack = new int32_t[stackSize];
 
         // Zero initialize
-        std::memset(registers, 0, sizeof(registers));
         std::memset(memory, 0, memorySize * sizeof(uint8_t));
         std::memset(stack, 0, stackSize * sizeof(int32_t));
     }

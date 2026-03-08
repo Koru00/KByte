@@ -80,7 +80,7 @@ union RegisterValue {
     void* ptr; // Useful if your VM interacts with host pointers
 };
 
-struct Register {
+typedef struct Register {
     RegisterValue value;
 
     // Helper methods for "Professional" access
@@ -92,7 +92,7 @@ struct Register {
     
     void setFloat(float val) { value.f32 = val; }
     float getFloat() const { return value.f32; }
-};
+} Register;
 
 inline std::optional<Registers> registersFromString(std::string_view str)
 {
@@ -111,13 +111,30 @@ inline std::optional<Registers> registersFromString(std::string_view str)
 
         {"R8", Registers::R8},
         {"R9", Registers::R9},
-        {"R10", Registers::R10},
-        {"R11", Registers::R11},
+        {"RA", Registers::RA},
+        {"RB", Registers::RB},
 
-        {"R12", Registers::R12},
-        {"R13", Registers::R13},
-        {"R14", Registers::R14},
-        {"R15", Registers::R15}
+        {"RC", Registers::RC},
+        {"RD", Registers::RD},
+        {"RE", Registers::RE},
+        {"RF", Registers::RF},
+
+        {"F0", Registers::F0},
+        {"F1", Registers::F1},
+        {"F2", Registers::F2},
+        {"F3", Registers::F3},
+        {"F4", Registers::F4},
+        {"F5", Registers::F5},
+        {"F6", Registers::F6},
+        {"F7", Registers::F7},
+        {"F8", Registers::F8},
+        {"F9", Registers::F9},
+        {"FA", Registers::FA},
+        {"FB", Registers::FB},
+        {"FC", Registers::FC},
+        {"FD", Registers::FD},
+        {"FE", Registers::FE},
+        {"FF", Registers::FF}
     };
 
     auto it = table.find(str);
