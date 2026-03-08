@@ -485,3 +485,129 @@ index 4a31d1b..b1d1b34 100644
 -};
 \ No newline at end of file
 +};
+diff --git a/RomBuilder/system_call.h b/RomBuilder/system_call.h
+index b1d1b34..f5cc311 100644
+--- a/RomBuilder/system_call.h
++++ b/RomBuilder/system_call.h
+@@ -6,6 +6,7 @@
+ #include <cstdlib>
+ #include <iostream>
+ #include <limits>
++#include <stdio.h>
+ 
+ #include "vm.h"
+ 
+@@ -14,7 +15,7 @@ enum class SystemCall : uint8_t {
+     EXT, YLD, ERR,
+ 
+     // Console I/O
+-    PRT, PRN, IPT, IPN, CCH, CLR,
++    PRT, PRN, IPT, IPN, CLR, CCH,
+ 
+     // Memory
+     MAL, FRE, RDB, WRB, CPY, SET,
+@@ -108,7 +109,9 @@ static inline void sys_err_handler(VM& vm, uint32_t v) noexcept
+ // Print string from memory
+ static inline void sys_prt_handler(VM& vm, uint32_t v) noexcept
+ {
+-    
++    // TODO
++    // v -> memory offset to where to look for the start of the string
++    // use putchar(vm.memory[i]) for printing until memory[i] is not \0 
+ }
+ 
+ // Print number
+@@ -154,7 +157,14 @@ static inline void sys_clr_handler(VM& vm, uint32_t v) noexcept
+ // Print a single character
+ static inline void sys_cch_handler(VM& vm, uint32_t v) noexcept
+ {
+-
++    if (v & 0xFFFFFF00)
++    {
++        // If v is more then a uint8 return
++        // TODO set vm excetion to EX_TYPE_MISMATCH
++        std::cout << v << " is more then 8 bit" << std::endl;
++        return;
++    }
++    std::cout << static_cast<char>(v);
+ }
+ 
+ static inline SysHandler sys_handlers[] = {
+diff --git a/build.sh b/build.sh
+index 6dcff43..ed34e86 100755
+--- a/build.sh
++++ b/build.sh
+@@ -1 +1 @@
+-cmake --build build/linux-release/
++cmake --build build/linux-debug/
+diff --git a/build/linux-debug/.ninja_deps b/build/linux-debug/.ninja_deps
+index 03550ec..2a9bbf2 100644
+Binary files a/build/linux-debug/.ninja_deps and b/build/linux-debug/.ninja_deps differ
+diff --git a/build/linux-debug/.ninja_log b/build/linux-debug/.ninja_log
+index cdc1543..a1694d2 100644
+--- a/build/linux-debug/.ninja_log
++++ b/build/linux-debug/.ninja_log
+@@ -18,3 +18,28 @@
+ 5	5769	1772927474680756976	RomBuilder/CMakeFiles/RomBuilder.dir/interpreter.cpp.o	24449ed10a8ac9b6
+ 5	9054	1772927474679613317	RomBuilder/CMakeFiles/RomBuilder.dir/assembler.cpp.o	5bca4786448daf25
+ 9055	9305	1772927483729604506	RomBuilder/RomBuilder	66099e6f8971268e
++4	3853	1772929130156870408	RomBuilder/CMakeFiles/RomBuilder.dir/bytecode.cpp.o	d2acc34db15667b2
++3	4662	1772929130155870403	RomBuilder/CMakeFiles/RomBuilder.dir/RomBuilder.cpp.o	71cca33bb52293ee
++4	5980	1772929130158201537	RomBuilder/CMakeFiles/RomBuilder.dir/interpreter.cpp.o	24449ed10a8ac9b6
++4	8897	1772929130157932813	RomBuilder/CMakeFiles/RomBuilder.dir/assembler.cpp.o	5bca4786448daf25
++8898	9180	1772929139050912357	RomBuilder/RomBuilder	66099e6f8971268e
++3	3858	1772929479848541645	RomBuilder/CMakeFiles/RomBuilder.dir/bytecode.cpp.o	d2acc34db15667b2
++2	4471	1772929479847541640	RomBuilder/CMakeFiles/RomBuilder.dir/RomBuilder.cpp.o	71cca33bb52293ee
++4	5758	1772929479850470920	RomBuilder/CMakeFiles/RomBuilder.dir/interpreter.cpp.o	24449ed10a8ac9b6
++3	9041	1772929479850191772	RomBuilder/CMakeFiles/RomBuilder.dir/assembler.cpp.o	5bca4786448daf25
++9041	9316	1772929488886585315	RomBuilder/RomBuilder	66099e6f8971268e
++22	3926	1772929547982163913	RomBuilder/CMakeFiles/RomBuilder.dir/bytecode.cpp.o	d2acc34db15667b2
++21	4368	1772929547981163920	RomBuilder/CMakeFiles/RomBuilder.dir/RomBuilder.cpp.o	71cca33bb52293ee
++22	5835	1772929547983163905	RomBuilder/CMakeFiles/RomBuilder.dir/interpreter.cpp.o	24449ed10a8ac9b6
++22	8983	1772929547982907625	RomBuilder/CMakeFiles/RomBuilder.dir/assembler.cpp.o	5bca4786448daf25
++8983	9234	1772929556943096201	RomBuilder/RomBuilder	66099e6f8971268e
++2	3854	1772929607530337701	RomBuilder/CMakeFiles/RomBuilder.dir/bytecode.cpp.o	d2acc34db15667b2
++2	4378	1772929607528745123	RomBuilder/CMakeFiles/RomBuilder.dir/RomBuilder.cpp.o	71cca33bb52293ee
++4	5632	1772929607530745110	RomBuilder/CMakeFiles/RomBuilder.dir/interpreter.cpp.o	24449ed10a8ac9b6
++3	8857	1772929607530702322	RomBuilder/CMakeFiles/RomBuilder.dir/assembler.cpp.o	5bca4786448daf25
++8857	9106	1772929616383688878	RomBuilder/RomBuilder	66099e6f8971268e
++4	3900	1772929956952444060	RomBuilder/CMakeFiles/RomBuilder.dir/bytecode.cpp.o	d2acc34db15667b2
++3	4444	1772929956951444061	RomBuilder/CMakeFiles/RomBuilder.dir/RomBuilder.cpp.o	71cca33bb52293ee
++4	5763	1772929956954069971	RomBuilder/CMakeFiles/RomBuilder.dir/interpreter.cpp.o	24449ed10a8ac9b6
++4	8897	1772929956953785221	RomBuilder/CMakeFiles/RomBuilder.dir/assembler.cpp.o	5bca4786448daf25
++8897	9144	1772929965845430560	RomBuilder/RomBuilder	66099e6f8971268e
+diff --git a/build/linux-debug/RomBuilder/CMakeFiles/RomBuilder.dir/RomBuilder.cpp.o b/build/linux-debug/RomBuilder/CMakeFiles/RomBuilder.dir/RomBuilder.cpp.o
+index 1840987..401664b 100644
+Binary files a/build/linux-debug/RomBuilder/CMakeFiles/RomBuilder.dir/RomBuilder.cpp.o and b/build/linux-debug/RomBuilder/CMakeFiles/RomBuilder.dir/RomBuilder.cpp.o differ
+diff --git a/build/linux-debug/RomBuilder/CMakeFiles/RomBuilder.dir/assembler.cpp.o b/build/linux-debug/RomBuilder/CMakeFiles/RomBuilder.dir/assembler.cpp.o
+index 3393e17..6bf8cc4 100644
+Binary files a/build/linux-debug/RomBuilder/CMakeFiles/RomBuilder.dir/assembler.cpp.o and b/build/linux-debug/RomBuilder/CMakeFiles/RomBuilder.dir/assembler.cpp.o differ
+diff --git a/build/linux-debug/RomBuilder/CMakeFiles/RomBuilder.dir/bytecode.cpp.o b/build/linux-debug/RomBuilder/CMakeFiles/RomBuilder.dir/bytecode.cpp.o
+index 0173332..8e0bf2a 100644
+Binary files a/build/linux-debug/RomBuilder/CMakeFiles/RomBuilder.dir/bytecode.cpp.o and b/build/linux-debug/RomBuilder/CMakeFiles/RomBuilder.dir/bytecode.cpp.o differ
+diff --git a/build/linux-debug/RomBuilder/CMakeFiles/RomBuilder.dir/interpreter.cpp.o b/build/linux-debug/RomBuilder/CMakeFiles/RomBuilder.dir/interpreter.cpp.o
+index 24594a7..0ea55ef 100644
+Binary files a/build/linux-debug/RomBuilder/CMakeFiles/RomBuilder.dir/interpreter.cpp.o and b/build/linux-debug/RomBuilder/CMakeFiles/RomBuilder.dir/interpreter.cpp.o differ
+diff --git a/build/linux-debug/RomBuilder/RomBuilder b/build/linux-debug/RomBuilder/RomBuilder
+index d48fac5..e2985bf 100755
+Binary files a/build/linux-debug/RomBuilder/RomBuilder and b/build/linux-debug/RomBuilder/RomBuilder differ
+diff --git a/examples/test-asm.xba b/examples/test-asm.xba
+index 1602f78..59a2a7b 100644
+--- a/examples/test-asm.xba
++++ b/examples/test-asm.xba
+@@ -15,6 +15,10 @@ CMP R2 R5
+ JNE LOOP
+ LDI R7 04
+ SYC
++# print new line
++LDI R0 10
++LDI R7 08
++SYC
+ XOR R0 R0
+ LDI R7 00
+-SYC
+\ No newline at end of file
++SYC
+diff --git a/examples/test-asm.xbc b/examples/test-asm.xbc
+index a345383..0e73383 100644
+Binary files a/examples/test-asm.xbc and b/examples/test-asm.xbc differ

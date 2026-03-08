@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <limits>
+#include <stdio.h>
 
 #include "vm.h"
 
@@ -14,7 +15,7 @@ enum class SystemCall : uint8_t {
     EXT, YLD, ERR,
 
     // Console I/O
-    PRT, PRN, IPT, IPN, CCH, CLR,
+    PRT, PRN, IPT, IPN, CLR, CCH,
 
     // Memory
     MAL, FRE, RDB, WRB, CPY, SET,
@@ -108,7 +109,9 @@ static inline void sys_err_handler(VM& vm, uint32_t v) noexcept
 // Print string from memory
 static inline void sys_prt_handler(VM& vm, uint32_t v) noexcept
 {
-    
+    // TODO
+    // v -> memory offset to where to look for the start of the string
+    // use putchar(vm.memory[i]) for printing until memory[i] is not \0 
 }
 
 // Print number
@@ -154,7 +157,14 @@ static inline void sys_clr_handler(VM& vm, uint32_t v) noexcept
 // Print a single character
 static inline void sys_cch_handler(VM& vm, uint32_t v) noexcept
 {
-
+    if (v & 0xFFFFFF00)
+    {
+        // If v is more then a uint8 return
+        // TODO set vm excetion to EX_TYPE_MISMATCH
+        std::cout << v << " is more then 8 bit" << std::endl;
+        return;
+    }
+    std::cout << static_cast<char>(v);
 }
 
 static inline SysHandler sys_handlers[] = {

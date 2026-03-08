@@ -1,1 +1,1 @@
-cmake --build build/linux-release/
+cmake --build build/linux-debug/
