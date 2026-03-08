@@ -33,29 +33,65 @@ inline uint32_t pack_u8_to_u32(uint8_t byte_3, uint8_t byte_2, uint8_t byte_1, u
 #define ENCODE_OP(op, a, b, c) \
     ((uint32_t)(op) << 24 | ((uint32_t)(a) << 16) | ((uint32_t)(b) << 8) | (uint32_t)(c))
 
-enum Registers : uint8_t
-{
-    // General purpose registers for function calls and arithmetic
-    R0 = 0x00,  // Return value / primary result of functions
-    R1 = 0x01,  // Argument 1 / temp storage
-    R2 = 0x02,  // Argument 2 / temp storage
-    R3 = 0x03,  // Argument 3 / temp storage
+enum Registers : uint8_t {
+    // --- Integer / General Purpose Registers (0x00 - 0x0F) ---
+    R0 = 0x00, // Result / Accumulator
+    R1 = 0x01, // Argument 1
+    R2 = 0x02, // Argument 2
+    R3 = 0x03, // Argument 3
+    R4 = 0x04, // Local / Temp
+    R5 = 0x05, // Local / Temp
+    R6 = 0x06, // Local / Temp
+    R7 = 0x07, // Syscall ID
+    R8 = 0x08, // Counter / Index
+    R9 = 0x09, // Counter / Index
+    RA = 0x0A, // Pointer / Base
+    RB = 0x0B, // Pointer / Base
+    RC = 0x0C, // Scratch
+    RD = 0x0D, // Scratch
+    RE = 0x0E, // Scratch
+    RF = 0x0F, // Internal / Reserved
 
-    R4 = 0x04,  // Local variable / temp for complex operations
-    R5 = 0x05,  // Local variable / temp for complex operations
-    R6 = 0x06,  // Scratch register / intermediate calculations
-    R7 = 0x07,  // System call index or special instruction indicator
+    // --- Floating Point Registers (0x10 - 0x1F) ---
+    F0 = 0x10, // Float Result
+    F1 = 0x11, // Float Arg 1
+    F2 = 0x12, // Float Arg 2
+    F3 = 0x13, // Float Arg 3
+    F4 = 0x14, // Float Temp
+    F5 = 0x15, // Float Temp
+    F6 = 0x16, // Float Temp
+    F7 = 0x17, // Float Temp
+    F8 = 0x18, // Float Constant
+    F9 = 0x19, // Float Constant
+    FA = 0x1A, // Float Scratch
+    FB = 0x1B, // Float Scratch
+    FC = 0x1C, // Float Scratch
+    FD = 0x1D, // Float Scratch
+    FE = 0x1E, // Float Scratch
+    FF = 0x1F, // Internal / FPU Status
 
-    // Additional general purpose registers for computation or function usage
-    R8 = 0x08,  // Extra temp / loop counter
-    R9 = 0x09,  // Extra temp / loop counter
-    R10 = 0x0A,  // Can be used as index / array pointer
-    R11 = 0x0B,  // Can be used as index / array pointer
+    REG_COUNT = 0x20 // Total 32 registers
+};
 
-    R12 = 0x0C,  // Reserved for future special use (e.g., flags shadow, status)
-    R13 = 0x0D,  // Reserved for future special use (e.g., interrupt return)
-    R14 = 0x0E,  // Scratch / temporary accumulator for math / ALU
-    R15 = 0x0F   // Reserved / scratch for VM internal use, or syscall result buffer
+union RegisterValue {
+    uint32_t u32;
+    int32_t  i32;
+    float    f32;
+    void* ptr; // Useful if your VM interacts with host pointers
+};
+
+struct Register {
+    RegisterValue value;
+
+    // Helper methods for "Professional" access
+    void setU32(uint32_t val) { value.u32 = val; }
+    uint32_t getU32() const { return value.u32; }
+
+    void setI32(int32_t val) { value.i32 = val; }
+    int32_t getI32() const { return value.i32; }
+    
+    void setFloat(float val) { value.f32 = val; }
+    float getFloat() const { return value.f32; }
 };
 
 inline std::optional<Registers> registersFromString(std::string_view str)

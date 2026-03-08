@@ -160,10 +160,20 @@ public:
         return *this;
     }
 
+    Register& getRegister(uint8_t index)
+    {
+        if (index >= REG_COUNT)
+        {
+            ex = EX_MAKE(EX_VM, EX_VM_ILLEGAL_INSTRUCTION); 
+            return registers[0]; 
+        }
+        return gprs[index];
+    }
+
 public:
 
     // 16 general purpose registers
-    uint32_t registers[16];
+    Register registers[REG_COUNT];
 
     // Dynamic memory (heap of the VM)
     uint8_t* memory;
@@ -175,9 +185,9 @@ public:
     size_t codeSize;
 
     // Special registers
-    uint32_t ip;
-    uint32_t sp;
-    uint32_t bp;
+    Register ip;
+    Register sp;
+    Register bp;
 
     uint8_t flags;
     uint32_t ex;
