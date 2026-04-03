@@ -56,6 +56,6 @@ void execute(VM& vm, Bytecode opcode, uint8_t a, uint8_t b, uint8_t c)
 
     // Only increment if the instruction didn't perform a jump or stop
     if (vm.state != VMState::Stopped) {
-        vm.ip++;
+        vm.ip.setU32(vm.ip.getU32() + 1);
     }
 }

@@ -163,10 +163,10 @@ public:
     {
         if (index >= REG_COUNT)
         {
-            ex = EX_MAKE(EX_VM, EX_VM_ILLEGAL_INSTRUCTION); 
+            ex = EX_MAKE(ExceptionCategory::EX_VM, EX_VM_ILLEGAL_INSTRUCTION);
             return registers[0]; 
         }
-        return gprs[index];
+        return registers[index];
     }
 
 public:
@@ -203,8 +203,6 @@ private:
 
     void moveFrom(VM& other)
     {
-        std::memcpy(registers, other.registers, sizeof(registers));
-
         memory = other.memory;
         stack = other.stack;
 
